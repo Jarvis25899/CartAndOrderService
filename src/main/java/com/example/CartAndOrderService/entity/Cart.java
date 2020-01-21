@@ -16,11 +16,9 @@ public class Cart {
     @GeneratedValue(generator = "idGenerator")
     private int cartId;
 
-    private int userId;
-    private int productId;
-    private int merchantId;
-
-    @Column(columnDefinition = "integer default 1")
+    private String userId;
+    private String productId;
+    private String merchantId;
     private long quantity;
 
 }

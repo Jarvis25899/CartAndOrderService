@@ -4,12 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class CartDTO {
+public class ProductMerchantAvailability {
 
-    private int cartId;
-    private String userId;
+    private int ProductMerchantId;
     private String productId;
     private String merchantId;
     private long quantity;
+    private double price;
 
 }

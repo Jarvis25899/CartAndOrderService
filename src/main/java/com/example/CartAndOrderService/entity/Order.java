@@ -17,12 +17,12 @@ public class Order {
     @GeneratedValue(generator = "idGenerator")
     private int orderId;
 
-    private int userId;
-    private int merchantId;
-    private int productId;
+    private String userId;
+    private String merchantId;
+    private String productId;
     private long quantity;
     private double price;
-    private Date orderDate;
+    private String orderDate;
     private double totalPrice;
 
 }
