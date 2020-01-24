@@ -2,7 +2,8 @@ package com.example.CartAndOrderService.service;
 
 import com.example.CartAndOrderService.dto.CartOrderDTO;
 import com.example.CartAndOrderService.entity.Cart;
-import com.example.CartAndOrderService.utility.Product;
+import com.example.CartAndOrderService.response.APIResponse;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ public interface CartService {
     Cart addToCart(Cart cart);
     void update(Cart cart);
     void remove(Cart cart);
-    Product getDetails();
     List<CartOrderDTO> getCartDetails(String userId);
-    List<CartOrderDTO> checkOut(String userId);
+    ResponseEntity<APIResponse<String>> checkOut(String userId);
+    String parseToken(String token);
 }

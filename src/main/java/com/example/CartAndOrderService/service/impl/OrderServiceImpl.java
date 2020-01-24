@@ -2,6 +2,7 @@ package com.example.CartAndOrderService.service.impl;
 
 import com.example.CartAndOrderService.dto.CartOrderDTO;
 import com.example.CartAndOrderService.dto.Merchant;
+import com.example.CartAndOrderService.dto.OrderDetail;
 import com.example.CartAndOrderService.dto.ProductMerchantAvailability;
 import com.example.CartAndOrderService.entity.Cart;
 import com.example.CartAndOrderService.entity.Order;
@@ -31,14 +32,16 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     MerchantProxy merchantProxy;
 
+
+
     @Override
     public CartOrderDTO buyNow(Cart cartCreated) {
 
         Order order = new Order();
 
-        Product productDetails = cartOrderProxy.getProductDetails(cartCreated.getProductId());
+        Product productDetails = cartOrderProxy.getProductDetails(cartCreated.getProductId()).getBody().getData();
         Merchant merchantDetails = merchantProxy.getMerchantDetails(cartCreated.getMerchantId());
-        ProductMerchantAvailability productMerchantDetails = merchantProxy.getProductAvailability(cartCreated.getProductId(),cartCreated.getMerchantId());
+        ProductMerchantAvailability productMerchantDetails = merchantProxy.get(cartCreated.getProductId(),cartCreated.getMerchantId());
 
         order.setMerchantId(cartCreated.getMerchantId());
         order.setProductId(cartCreated.getProductId());
@@ -72,12 +75,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> orderDetails(String merchantId) {
+    public List<OrderDetail> orderDetails(String merchantId) {
         List<Order> orderList = (List<Order>) orderRepository.findAll();
-        List<Order> orders = new ArrayList<>();
+        List<OrderDetail> orders = new ArrayList<>();
         orderList.stream().forEach(order -> {
             if ((order.getMerchantId()).equals(merchantId)){
-                orders.add(order);
+                Product productDetails = cartOrderProxy.getProductDetails(order.getProductId()).getBody().getData();
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setMerchantId(order.getMerchantId());
+                orderDetail.setOrderDate(order.getOrderDate());
+                orderDetail.setOrderId(order.getOrderId());
+                orderDetail.setPrice(order.getPrice());
+                orderDetail.setProductId(order.getProductId());
+                orderDetail.setProductImage(productDetails.getProductImage());
+                orderDetail.setProductName(productDetails.getProductName());
+                orderDetail.setQuantity(order.getQuantity());
+                orderDetail.setTotalPrice(order.getTotalPrice());
+                orderDetail.setUserId(order.getUserId());
+
+                orders.add(orderDetail);
             }
         });
         return orders;
@@ -89,11 +105,12 @@ public class OrderServiceImpl implements OrderService {
         List<CartOrderDTO> cartOrderDTOList = new ArrayList<>();
         orderList.stream().forEach(order -> {
             if ((order.getUserId()).equals(userId)) {
-                Product productDetails = cartOrderProxy.getProductDetails(order.getProductId());
+                Product productDetails = cartOrderProxy.getProductDetails(order.getProductId()).getBody().getData();
                 Merchant merchantDetails = merchantProxy.getMerchantDetails(order.getMerchantId());
-                ProductMerchantAvailability productMerchantDetails = merchantProxy.getProductAvailability(order.getProductId(), order.getMerchantId());
+                ProductMerchantAvailability productMerchantDetails = merchantProxy.get(order.getProductId(), order.getMerchantId());
 
                 CartOrderDTO cartOrder = new CartOrderDTO();
+                cartOrder.setOrderId(order.getOrderId());
                 cartOrder.setProductId(productDetails.getProductId());
                 cartOrder.setProductName(productDetails.getProductName());
                 cartOrder.setProductDesc(productDetails.getProductDesc());
@@ -104,11 +121,8 @@ public class OrderServiceImpl implements OrderService {
                 cartOrder.setMerchantName(merchantDetails.getMerchantName());
                 cartOrder.setPrice(productMerchantDetails.getPrice());
                 cartOrder.setQuantity(order.getQuantity());
-                double totalPrice = productMerchantDetails.getPrice() * order.getQuantity();
-                cartOrder.setTotalPrice(totalPrice);
-                DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-                Date date = new Date();
-                cartOrder.setOrderDate(df.format(date));
+                cartOrder.setTotalPrice(order.getTotalPrice());
+                cartOrder.setOrderDate(order.getOrderDate());
 
                 cartOrderDTOList.add(cartOrder);
             }
