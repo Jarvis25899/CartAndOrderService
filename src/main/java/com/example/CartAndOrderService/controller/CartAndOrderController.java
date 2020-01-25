@@ -4,7 +4,6 @@ import com.example.CartAndOrderService.dto.CartDTO;
 import com.example.CartAndOrderService.dto.CartOrderDTO;
 import com.example.CartAndOrderService.dto.OrderDetail;
 import com.example.CartAndOrderService.entity.Cart;
-import com.example.CartAndOrderService.entity.Order;
 import com.example.CartAndOrderService.response.APIResponse;
 import com.example.CartAndOrderService.service.CartService;
 import com.example.CartAndOrderService.service.OrderService;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/cartOrder")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CartAndOrderController {
 
@@ -84,7 +83,7 @@ public class CartAndOrderController {
         return new ResponseEntity<>(new APIResponse<>(1000,"SUCCESS","Quantity updated"),HttpStatus.OK);
     }
 
-    @DeleteMapping("/remove")
+    @PostMapping("/remove")
     public ResponseEntity<APIResponse<String>> remove(@RequestBody CartDTO cartDTO){
         Cart cart = new Cart();
         BeanUtils.copyProperties(cartDTO,cart);

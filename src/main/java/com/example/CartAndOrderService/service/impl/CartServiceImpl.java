@@ -66,6 +66,7 @@ public class CartServiceImpl implements CartService {
                 .getBody();
 
         String id = (String) body.get("userId");
+        System.out.println(id);
         return id;
 
     }
@@ -205,11 +206,12 @@ public class CartServiceImpl implements CartService {
                         merchantProxy.updateStock(searchDTO);
                         cartOrderProxy.updateSellCount(order.getProductId(),(productDetails.getSellCount() + order.getQuantity()));
 
+                        System.out.println(order);
+
                         orderRepository.save(order);
 
                         MailDTO mailDTO = new MailDTO();
 
-                        mailDTO.setOrderId(order.getOrderId());
                         mailDTO.setUserEmail(userProxy.getMail(userId));
                         mailDTO.setProductName(productDetails.getProductName());
                         mailDTO.setProductDesc(productDetails.getProductDesc());
@@ -221,13 +223,14 @@ public class CartServiceImpl implements CartService {
                         mailDTO.setTotalPrice(order.getTotalPrice());
                         mailDTO.setOrderDate(df.format(date));
 
+
+                        cartRepository.deleteById(cart.getCartId());
                         ObjectMapper objectMapper = new ObjectMapper();
                         try {
-                            kafkaTemplate.send("Mail",objectMapper.writeValueAsString(mailDTO));
+                            kafkaTemplate.send("MailTopic",objectMapper.writeValueAsString(mailDTO));
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
                         }
-
                     }
                     //cartOrderDTOList.add(cartOrder);
                 }
@@ -240,7 +243,7 @@ public class CartServiceImpl implements CartService {
             }
         });
         if (flag.get() == 0) {
-            cartRepository.deleteAll();
+
             return new ResponseEntity<>(new APIResponse<>(1000,"SUCCESS","Order placed !!!"),HttpStatus.OK);
         }
         else {
