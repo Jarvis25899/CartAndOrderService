@@ -14,4 +14,6 @@ public interface CartService {
     List<CartOrderDTO> getCartDetails(String userId);
     ResponseEntity<APIResponse<String>> checkOut(String userId);
     String parseToken(String token);
+    String updateCart(String guestId,String userId);
+    int cartBadge(String userId);
 }

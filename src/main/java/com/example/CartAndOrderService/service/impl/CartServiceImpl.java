@@ -72,9 +72,26 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    public String updateCart(String guestId, String userId) {
+        cartRepository.updateCart(guestId,userId);
+        return "Cart Updated";
+    }
+
+    @Override
+    public int cartBadge(String userId) {
+        AtomicInteger cartItems = new AtomicInteger();
+        cartList = (List<Cart>) cartRepository.findAll();
+        cartList.stream().forEach(cart -> {
+            if ((cart.getUserId()).equals(userId)){
+                cartItems.getAndIncrement();
+            }
+        });
+        return cartItems.get();
+    }
+
+    @Override
     public Cart addToCart(Cart cart) {
         cartList = (List<Cart>) cartRepository.findAll();
-        //System.out.println(cartList);
         AtomicInteger flag = new AtomicInteger(0);
         AtomicInteger id = new AtomicInteger(0);
         AtomicLong updatedQuantity = new AtomicLong(0);
@@ -162,7 +179,7 @@ public class CartServiceImpl implements CartService {
                 Product productDetails = cartOrderProxy.getProductDetails(cart.getProductId()).getBody().getData();
                 Merchant merchantDetails = merchantProxy.getMerchantDetails(cart.getMerchantId());
                 ProductMerchantAvailability productMerchantDetails = merchantProxy.get(cart.getProductId(),cart.getMerchantId());
-                if (cart.getQuantity() < productMerchantDetails.getQuantity()){
+                if (cart.getQuantity() <= productMerchantDetails.getQuantity()){
 
                     CartOrderDTO cartOrder = new CartOrderDTO();
                     cartOrder.setProductId(productDetails.getProductId());
@@ -206,13 +223,12 @@ public class CartServiceImpl implements CartService {
                         merchantProxy.updateStock(searchDTO);
                         cartOrderProxy.updateSellCount(order.getProductId(),(productDetails.getSellCount() + order.getQuantity()));
 
-                        System.out.println(order);
-
                         orderRepository.save(order);
 
                         MailDTO mailDTO = new MailDTO();
 
                         mailDTO.setUserEmail(userProxy.getMail(userId));
+                        mailDTO.setOrderId(order.getOrderId());
                         mailDTO.setProductName(productDetails.getProductName());
                         mailDTO.setProductDesc(productDetails.getProductDesc());
                         mailDTO.setProductRating(productDetails.getProductRating());
@@ -247,7 +263,7 @@ public class CartServiceImpl implements CartService {
             return new ResponseEntity<>(new APIResponse<>(1000,"SUCCESS","Order placed !!!"),HttpStatus.OK);
         }
         else {
-            return new ResponseEntity<>(new APIResponse<>(400, productName+" is out of stock by "+difference+" quantity"), HttpStatus.OK);
+            return new ResponseEntity<>(new APIResponse<>(400, productName+" is out of stock by "+difference+" quantity. Try with another merchant"), HttpStatus.OK);
         }
     }
 }

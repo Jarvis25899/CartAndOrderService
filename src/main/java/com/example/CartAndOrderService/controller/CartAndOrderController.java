@@ -92,4 +92,15 @@ public class CartAndOrderController {
         cartService.remove(cart);
         return new ResponseEntity<>(new APIResponse<>(1000,"SUCCESS","Item removed from cart"),HttpStatus.OK);
     }
+
+    @GetMapping("/updateCart/{guestId}/{userId}")
+    public String updateCart(@PathVariable("guestId") String guestId,@PathVariable("userId") String userId){
+        return cartService.updateCart(guestId,userId);
+    }
+
+    @GetMapping("/cartBadge/{token}")
+    public ResponseEntity<APIResponse<Integer>> cartBadge(@PathVariable("token") String token){
+        String userId = cartService.parseToken(token);
+        return new ResponseEntity<>(new APIResponse<>(1000,"SUCCESS",cartService.cartBadge(userId)),HttpStatus.OK);
+    }
 }

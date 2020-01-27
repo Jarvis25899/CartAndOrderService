@@ -2,7 +2,6 @@ package com.example.CartAndOrderService.proxy;
 
 import com.example.CartAndOrderService.response.APIResponse;
 import com.example.CartAndOrderService.utility.Product;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
